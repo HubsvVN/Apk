@@ -20,22 +20,23 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0 ndk;25.2.9519653'
+          accept-android-sdk-licenses: true
 
-      - name: Grant execute
+      - name: Make gradlew executable
         run: chmod +x gradlew || true
 
       - name: Build Debug APK
         run: |
-          if [ -f gradlew ]; then
-            ./gradlew assembleDebug --stacktrace
-          else
-            # fallback nếu chưa có wrapper
+          if [ ! -f gradlew ]; then
             gradle wrapper --gradle-version 8.5
-            ./gradlew assembleDebug --stacktrace
           fi
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: dfx-apk
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
